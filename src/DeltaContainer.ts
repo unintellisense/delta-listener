@@ -29,6 +29,7 @@ export class DeltaContainer<T> {
         let patches = compare(this.data, newData);
         this.checkPatches(patches);
         this.data = newData;
+        console.log('test')
         return patches;
     }
 
