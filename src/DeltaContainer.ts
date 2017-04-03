@@ -6,6 +6,37 @@ export interface Listener {
     rules: RegExp[]
 }
 
+export type StateType = 'boolean' | 'number' | 'string' | 'Array' | 'Object';
+/**
+ * interface used to define the 'shape' of the state attributes
+ * 
+ */
+export interface StateNode {
+    type: StateType
+}
+
+export interface StateObjectNode extends StateNode {
+    type: 'Object'
+    properties: { [name: string]: StateNode }
+}
+
+export interface StateArrayNode extends StateNode {
+    type: 'Array'
+    arrayType: StateNode
+}
+
+let test: StateObjectNode = {
+    type: 'Object',
+    properties: {
+        players: {
+            type: 'Array',
+            arrayType: {
+                
+            }
+        }
+    }
+}
+
 export interface PatchObject {
     path: string[];
     op: "add" | "remove" | "replace";
