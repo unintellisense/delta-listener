@@ -7,23 +7,31 @@ export interface Listener {
 }
 
 export type StateType = 'boolean' | 'number' | 'string' | 'Array' | 'Object';
-/**
- * interface used to define the 'shape' of the state attributes
- * 
- */
-export interface StateNode {
-    type: StateType
+
+
+export interface StateBooleanNode {
+    type: 'boolean'
 }
 
-export interface StateObjectNode extends StateNode {
-    type: 'Object'
-    properties: { [name: string]: StateNode }
+export interface StateStringNode {
+    type: 'string'
 }
 
-export interface StateArrayNode extends StateNode {
+export interface StateNumberNode {
+    type: 'number'
+}
+
+export interface StateArrayNode {
     type: 'Array'
-    arrayType: StateNode
+    arrayType: StateNodeTypes
 }
+
+export interface StateObjectNode {
+    type: 'Object'
+    properties: { [name: string]: StateNodeTypes }
+}
+
+export type StateNodeTypes = StateBooleanNode | StateStringNode | StateNumberNode | StateArrayNode | StateObjectNode
 
 let test: StateObjectNode = {
     type: 'Object',
@@ -31,7 +39,7 @@ let test: StateObjectNode = {
         players: {
             type: 'Array',
             arrayType: {
-                
+                type: 'string'
             }
         }
     }
