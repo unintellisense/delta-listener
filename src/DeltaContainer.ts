@@ -20,15 +20,15 @@ export interface StateNumberNode {
 
 export interface StateObjectNode {
     type: 'Object'
-    properties: { [name: string]: StateNodeTypes }
+    properties: { [name: string]: StateNodeType }
 }
 
 export interface StateDictionaryNode {
     type: 'Dictionary'
-    valueType: StateNodeTypes
+    valueType: StateNodeType
 }
 
-export type StateNodeTypes = StateBooleanNode | StateStringNode | StateNumberNode | StateObjectNode | StateDictionaryNode
+export type StateNodeType = StateBooleanNode | StateStringNode | StateNumberNode | StateObjectNode | StateDictionaryNode
 
 let test: StateObjectNode = {
     type: 'Object',
@@ -78,6 +78,12 @@ export class DeltaContainer<T> {
         this.data = data;
         this.reset();
     }
+
+    prepare(root: StateNodeType) {
+
+    }
+
+    
 
     public set(newData: T): PatchObject[] {
         let patches = this.compare(this.data, newData);

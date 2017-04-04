@@ -1,1 +1,1 @@
-export { DeltaContainer, PatchOperation, Listener, StateNodeTypes } from "./DeltaContainer";
+export { DeltaContainer, PatchOperation, Listener, StateNodeType } from "./DeltaContainer";
