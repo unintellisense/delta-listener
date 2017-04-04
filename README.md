@@ -55,6 +55,17 @@ container.listen((segments: string[], op: PatchOperation, value?: any) => {
 
 See [tests](test/delta_test.ts) for more usage examples.
 
+Built-in placeholders
+---
+
+- `:id`: `/([a-zA-Z0-9\-_]+)/`
+- `:number`: `/([0-9]+)/`
+- `:string`: `/(\w+)/`
+- `*`: `/(.*)/`
+
+When any other name is used starting with `:` (e.g. `:example`), `*` will be
+used instead.
+
 **Example:**
 
 ```typescript
@@ -87,18 +98,6 @@ container.listen("entity/:id/:xyz", "replace", (id: string, axis: string, value:
     entities[ id ][ axis ] = value;
 });
 ```
-
-Built-in placeholders
----
-
-- `:id`: `/([a-zA-Z0-9\-_]+)/`
-- `:number`: `/([0-9]+)/`
-- `:string`: `/(\w+)/`
-- `*`: `/(.*)/`
-
-When any other name is used starting with `:` (e.g. `:example`), `*` will be
-used instead.
-
 
 Special thanks
 ---
