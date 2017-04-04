@@ -23,7 +23,8 @@ export interface StateNumberNode {
 
 export interface StateArrayNode {
     type: 'Array'
-    arrayType: StateNodeTypes
+    indexName: string
+    arrayObject: StateObjectNode
 }
 
 export interface StateObjectNode {
@@ -38,8 +39,10 @@ let test: StateObjectNode = {
     properties: {
         players: {
             type: 'Array',
-            arrayType: {
-                type: 'string'
+            indexName: 'id',
+            arrayObject: {
+                type: 'Object',
+                properties: {}
             }
         }
     }
