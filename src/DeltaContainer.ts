@@ -6,9 +6,6 @@ export interface Listener {
     rules: RegExp[]
 }
 
-export type StateType = 'boolean' | 'number' | 'string' | 'Array' | 'Object';
-
-
 export interface StateBooleanNode {
     type: 'boolean'
 }
@@ -21,28 +18,39 @@ export interface StateNumberNode {
     type: 'number'
 }
 
-export interface StateArrayNode {
-    type: 'Array'
-    indexName: string
-    arrayObject: StateObjectNode
-}
-
 export interface StateObjectNode {
     type: 'Object'
     properties: { [name: string]: StateNodeTypes }
 }
 
-export type StateNodeTypes = StateBooleanNode | StateStringNode | StateNumberNode | StateArrayNode | StateObjectNode
+export interface StateDictionaryNode {
+    type: 'Dictionary'
+    valueType: StateNodeTypes
+}
+
+export type StateNodeTypes = StateBooleanNode | StateStringNode | StateNumberNode | StateObjectNode | StateDictionaryNode
 
 let test: StateObjectNode = {
     type: 'Object',
     properties: {
-        players: {
-            type: 'Array',
-            indexName: 'id',
-            arrayObject: {
+        playerMap: {
+            type: 'Dictionary',
+            valueType: {
                 type: 'Object',
-                properties: {}
+                properties: {
+                    id: { type: 'string' },
+                    name: { type: 'string' }
+                }
+            }
+        },
+        staticMap: {
+            type: 'Dictionary',
+            valueType: {
+                type: 'Object',
+                properties: {
+                    id: { type: 'string' },
+                    name: { type: 'string' }
+                }
             }
         }
     }
