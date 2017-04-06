@@ -1,7 +1,7 @@
 import { assert, expect } from "chai";
 import { DeltaContainer, PatchOperation } from "../src";
 
-function clone (data: any) {
+function clone(data: any) {
     return JSON.parse(JSON.stringify(data));
 }
 
@@ -53,7 +53,7 @@ describe("DeltaContainer", () => {
         let i = 0;
         function accept() {
             i++;
-            if (i===3) {
+            if (i === 3) {
                 ok();
             }
         }
@@ -127,7 +127,7 @@ describe("DeltaContainer", () => {
         let listener = container.listen("players", "add", assert.fail);
         container.removeListener(listener);
 
-        data.players.ten = {ten: 10};
+        data.players.ten = { ten: 10 };
         container.set(data);
     });
 
@@ -139,7 +139,7 @@ describe("DeltaContainer", () => {
 
         delete data.players['one'];
         data.entity.x = 100;
-        data.players.ten = {ten: 10};
+        data.players.ten = { ten: 10 };
 
         container.set(data);
     });
@@ -176,4 +176,77 @@ describe("DeltaContainer", () => {
         }, 1)
     });
 
+})
+
+type Vec3 = {
+    x: number
+    y: number
+    z: number
+}
+
+type ComplicatedExample = {
+    player: {
+        id: string
+        name: string
+    }[],
+    static: {
+        position: Vec3
+    }[],
+    dynamic: {
+        position: Vec3
+    }[]
+}
+
+describe('array Delta Test', () => {
+
+
+    let container: DeltaContainer<ComplicatedExample>;
+    let data: ComplicatedExample;
+
+    beforeEach(() => {
+        data = {
+            player: [],
+            dynamic: [{
+                position: {
+                    x: 1,
+                    y: 2,
+                    z: 3
+                }
+            }],
+            static: [{
+                position: {
+                    x: 5,
+                    y: 4,
+                    z: 3
+                }
+            }]
+        };
+        container = new DeltaContainer<any>(clone(data));
+    })
+
+    it("should tell that array was added and removed", done => {
+        container.listen('dynamic/:idx', 'add', (idx: number, val: any) => {
+            console.log(`add idx: ${idx}, value${JSON.stringify(val)}`);
+        });
+
+        container.listen('dynamic/:idx', 'remove', (idx: number) => {
+            console.log(`removeidx: ${idx}`);
+        });
+        
+        
+        data.dynamic.push({
+            position: {
+                x: 20, y: 30, z: 40
+            }
+        }) // add one to the end
+
+        //data.dynamic.splice(0, 1); // delete the first
+        container.set(data);
+
+
+        setTimeout(() => {
+            done();
+        }, 500);
+
+    })
 })
