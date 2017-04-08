@@ -48,17 +48,17 @@ function objectKeys (obj: any) {
 };
 
 // Dirty check if obj is different from mirror, generate patches and update mirror
-function generate(mirror: any, obj: any, patches: PatchObject[], path: string[]) {
-    var newKeys = objectKeys(obj);
-    var oldKeys = objectKeys(mirror);
+function generate(oldData: any, newData: any, patches: PatchObject[], path: string[]) {
+    var newKeys = objectKeys(newData);
+    var oldKeys = objectKeys(oldData);
     var changed = false;
     var deleted = false;
 
     for (var t = oldKeys.length - 1; t >= 0; t--) {
         var key = oldKeys[t];
-        var oldVal = mirror[key];
-        if (obj.hasOwnProperty(key) && !(obj[key] === undefined && oldVal !== undefined && Array.isArray(obj) === false)) {
-            var newVal = obj[key];
+        var oldVal = oldData[key];
+        if (newData.hasOwnProperty(key) && !(newData[key] === undefined && oldVal !== undefined && Array.isArray(newData) === false)) {
+            var newVal = newData[key];
             if (typeof oldVal == "object" && oldVal != null && typeof newVal == "object" && newVal != null) {
                 generate(oldVal, newVal, patches, path.concat(key));
             }
@@ -81,8 +81,8 @@ function generate(mirror: any, obj: any, patches: PatchObject[], path: string[])
 
     for (var t = 0; t < newKeys.length; t++) {
         var key = newKeys[t];
-        if (!mirror.hasOwnProperty(key) && obj[key] !== undefined) {
-            patches.push({op: "add", path: path.concat(key), value: deepClone(obj[key])});
+        if (!oldData.hasOwnProperty(key) && newData[key] !== undefined) {
+            patches.push({op: "add", path: path.concat(key), value: deepClone(newData[key])});
         }
     }
 }
