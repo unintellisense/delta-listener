@@ -1,7 +1,7 @@
 import { assert, expect } from "chai";
 import { DeltaContainer, PatchOperation } from "../src";
 
-function clone (data: any) {
+function clone(data: any) {
     return JSON.parse(JSON.stringify(data));
 }
 
@@ -53,7 +53,7 @@ describe("DeltaContainer", () => {
         let i = 0;
         function accept() {
             i++;
-            if (i===3) {
+            if (i === 3) {
                 ok();
             }
         }
@@ -127,7 +127,7 @@ describe("DeltaContainer", () => {
         let listener = container.listen("players", "add", assert.fail);
         container.removeListener(listener);
 
-        data.players.ten = {ten: 10};
+        data.players.ten = { ten: 10 };
         container.set(data);
     });
 
@@ -139,7 +139,7 @@ describe("DeltaContainer", () => {
 
         delete data.players['one'];
         data.entity.x = 100;
-        data.players.ten = {ten: 10};
+        data.players.ten = { ten: 10 };
 
         container.set(data);
     });
@@ -175,5 +175,28 @@ describe("DeltaContainer", () => {
             ok();
         }, 1)
     });
+
+    it('should listen for changes on parent objects', done => {
+        let assertCount = 0;
+
+        container.listen("entities/:name", "replace", (player: string, value: number) => {
+            assertCount++;
+            console.log(`value: ${value}`);
+        });
+
+        container.listen("entities/:name/:attribute", "replace", (id: string, attribute: string, value: any) => {
+            assertCount++;
+            console.log(`id: ${id} attribute: ${attribute} value: ${value}`);
+        });
+
+        data.entities.one.x = 33;
+        data.entities.one.y = 99;
+
+        data.entities.two.x = 55;
+        data.entities.two.y = 77;
+
+        container.set(data);
+        done();
+    })
 
 })
