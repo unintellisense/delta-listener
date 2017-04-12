@@ -19,9 +19,11 @@ export declare class DeltaContainer<T> {
     private reset();
     compare(newData: any): any[];
     generate(oldData: any, newData: any, patches: PatchObject[], path: string[]): void;
+    checkObjectReplaceListeners(oldVal: any, newVal: any, path: string[], patches: PatchObject[]): void;
 }
 export interface PatchObject {
     path: string[];
     op: "add" | "remove" | "replace";
     value?: any;
 }
+export declare function deepClone(obj: any): any;

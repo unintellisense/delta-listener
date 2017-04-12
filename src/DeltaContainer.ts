@@ -161,9 +161,10 @@ export class DeltaContainer<T> {
                     oldVal != null && // old value wasnt null, and 
                     typeof newVal == "object" && // new value is object, and
                     newVal != null) { // new value isnt null
-                    // check listeners
-                    
-                    this.generate(oldVal, newVal, patches, path.concat(prop));
+                    // check replace listeners for object level listener
+                    let newPath = path.concat(prop);
+                    this.checkObjectReplaceListeners(oldVal, newVal, newPath, patches);
+                    this.generate(oldVal, newVal, patches, newPath);
                 }
                 else {
                     if (oldVal !== newVal) {
@@ -190,10 +191,31 @@ export class DeltaContainer<T> {
         }
     }
 
-    checkListeners() { 
+    checkObjectReplaceListeners(oldVal: any, newVal: any, path: string[], patches: PatchObject[]) {
 
+        listenerLoop:
+        for (let i = this.listeners.replace.length - 1; i >= 0; i--) {
+            let listener = this.listeners.replace[i];
+            for (let i = 0; i < listener.rules.length; i++) {
+                if (!path[i] // if path isn't this long, or
+                    || !path[i].match(listener.rules[i])) { // path doesnt match
+                    continue listenerLoop;
+                }
+            }
+            // if we got here then the listener matches. test shallow values
+
+
+            let newKeys = objectKeys(newVal);
+            //let oldKeys = objectKeys(oldVal);
+            for (let i = newKeys.length - 1; i >= 0; i--) {
+                if (oldVal[newKeys[i]] !== newVal[newKeys[i]]) { // shallow value didn't match
+                    patches.push({ op: "replace", path: path, value: deepClone(newVal) });
+                    break listenerLoop;
+                }
+            }
+            break listenerLoop;
+        }
     }
-
 }
 
 export interface PatchObject {
@@ -204,7 +226,7 @@ export interface PatchObject {
 
 
 
-function deepClone(obj: any) {
+export function deepClone(obj: any) {
     switch (typeof obj) {
         case "object":
             return JSON.parse(JSON.stringify(obj)); //Faster than ES5 clone - http://jsperf.com/deep-cloning-of-objects/5
