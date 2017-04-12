@@ -226,7 +226,7 @@ export interface PatchObject {
 
 
 
-export function deepClone(obj: any) {
+function deepClone(obj: any) {
     switch (typeof obj) {
         case "object":
             return JSON.parse(JSON.stringify(obj)); //Faster than ES5 clone - http://jsperf.com/deep-cloning-of-objects/5

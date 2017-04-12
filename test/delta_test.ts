@@ -1,6 +1,5 @@
 import { assert, expect } from "chai";
 import { DeltaContainer, PatchOperation } from "../src";
-import { deepClone } from '../src/DeltaContainer';
 
 function clone(data: any) {
     return JSON.parse(JSON.stringify(data));
@@ -178,7 +177,7 @@ describe("DeltaContainer", () => {
     });
 
     it('should listen for changes on parent objects', done => {
-        let dataCopy = deepClone(data);
+        let dataCopy = clone(data);
         let assertCount = 0;
 
         container.listen("entities/:name", "replace", (player: string, value: number) => {
@@ -199,7 +198,7 @@ describe("DeltaContainer", () => {
 
         container.set(dataCopy);
 
-        let secondCopy = deepClone(dataCopy);
+        let secondCopy = clone(dataCopy);
 
         assert.equal(assertCount, 6);
 
@@ -226,7 +225,7 @@ describe("DeltaContainer", () => {
 
     it('should listen for changes on parent objects, but get nothing', done => {
 
-        let cloned = deepClone(data);
+        let cloned = clone(data);
         container.listen("entities/:name", "replace", (player: string, value: number) => {
             assert.fail(); // shouldn't be invoked
         });

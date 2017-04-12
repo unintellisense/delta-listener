@@ -26,4 +26,3 @@ export interface PatchObject {
     op: "add" | "remove" | "replace";
     value?: any;
 }
-export declare function deepClone(obj: any): any;
