@@ -206,6 +206,11 @@ export class DeltaContainer<T> {
             }
             // if we got here then the listener matches. test shallow values
             let newKeys = objectKeys(newVal);
+            // first just check if the number of properties changed
+            if (objectKeys(oldVal).length !== newKeys.length) {
+                patches.push({ op: "replace", path: path, value: deepClone(newVal) });
+                break listenerLoop;
+            }
             //let oldKeys = objectKeys(oldVal);
             for (let i = newKeys.length - 1; i >= 0; i--) {
                 if (oldVal[newKeys[i]] !== newVal[newKeys[i]]) { // shallow value didn't match
@@ -213,11 +218,7 @@ export class DeltaContainer<T> {
                     break listenerLoop;
                 }
             }
-            // if we get here without breaking, possible that a property was removed. 
-            // just compare length of properties on the old/new
-            if (objectKeys(oldVal).length !== newKeys.length) {
-                patches.push({ op: "replace", path: path, value: deepClone(newVal) });
-            }
+
             break listenerLoop;
         }
     }
