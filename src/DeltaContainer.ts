@@ -192,19 +192,19 @@ export class DeltaContainer<T> {
     }
 
     checkObjectReplaceListeners(oldVal: any, newVal: any, path: string[], patches: PatchObject[]) {
+        let rules;
 
         listenerLoop:
+
         for (let i = this.listeners.replace.length - 1; i >= 0; i--) {
-            let listener = this.listeners.replace[i];
-            for (let i = 0; i < listener.rules.length; i++) {
+            rules = this.listeners.replace[i].rules;
+            for (let i = 0; i < rules.length; i++) {
                 if (!path[i] // if path isn't this long, or
-                    || !path[i].match(listener.rules[i])) { // path doesnt match
+                    || !path[i].match(rules[i])) { // path doesnt match
                     continue listenerLoop;
                 }
             }
             // if we got here then the listener matches. test shallow values
-
-
             let newKeys = objectKeys(newVal);
             //let oldKeys = objectKeys(oldVal);
             for (let i = newKeys.length - 1; i >= 0; i--) {
@@ -212,6 +212,11 @@ export class DeltaContainer<T> {
                     patches.push({ op: "replace", path: path, value: deepClone(newVal) });
                     break listenerLoop;
                 }
+            }
+            // if we get here without breaking, possible that a property was removed. 
+            // just compare length of properties on the old/new
+            if (objectKeys(oldVal).length !== newKeys.length) {
+                patches.push({ op: "replace", path: path, value: deepClone(newVal) });
             }
             break listenerLoop;
         }
@@ -239,6 +244,8 @@ function deepClone(obj: any) {
     }
 }
 
+
+
 function objectKeys(obj: any) {
     if (Array.isArray(obj)) {
         var keys = new Array(obj.length);
@@ -250,15 +257,5 @@ function objectKeys(obj: any) {
         return keys;
     }
 
-    if (Object.keys) {
-        return Object.keys(obj);
-    }
-
-    var keys = [];
-    for (var i in obj) {
-        if (obj.hasOwnProperty(i)) {
-            keys.push(i);
-        }
-    }
-    return keys;
+    return Object.keys(obj);
 };

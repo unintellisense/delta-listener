@@ -238,4 +238,40 @@ describe("DeltaContainer", () => {
         done();
     })
 
+    it('should listen for changes on parent objects and trigger on new properties', done => {
+        let assertCount = 0;
+        let cloned = clone(data);
+        container.listen("entities/:name", "replace", (player: string, value: number) => {
+            assertCount++;
+        });
+        // first set it with doing nothing, shouldn't trigger
+        container.set(cloned);
+        assert.equal(assertCount, 0);
+
+        cloned = clone(data);
+        // add a new property to existing entity
+        cloned.entities.one.QQ = 456;
+        container.set(cloned);
+        assert.equal(assertCount, 1);
+        done();
+    })
+
+    it('should listen for changes on parent objects and trigger on deleted properties', done => {
+        let assertCount = 0;
+        let cloned = clone(data);
+        container.listen("entities/:name", "replace", (player: string, value: number) => {
+            assertCount++;
+        });
+        // first set it with doing nothing, shouldn't trigger
+        container.set(cloned);
+        assert.equal(assertCount, 0);
+
+        cloned = clone(data);
+        // add a new property to existing entity
+        delete cloned.entities.one.y
+        container.set(cloned);
+        assert.equal(assertCount, 1);
+        done();
+    })
+
 })
