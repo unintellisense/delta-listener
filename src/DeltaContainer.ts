@@ -163,8 +163,8 @@ export class DeltaContainer<T> {
                     newVal != null) { // new value isnt null
                     // check replace listeners for object level listener
                     let newPath = path.concat(prop);
-                    this.checkObjectReplaceListeners(oldVal, newVal, newPath, patches);
-                    this.generate(oldVal, newVal, patches, newPath);
+                    var match = this.checkObjectReplaceListeners(oldVal, newVal, newPath, patches);
+                    if (!match) this.generate(oldVal, newVal, patches, newPath);
                 }
                 else {
                     if (oldVal !== newVal) {
@@ -212,18 +212,17 @@ export class DeltaContainer<T> {
             // first just check if the number of properties changed
             if (objectKeys(oldVal).length !== newKeys.length) {
                 patches.push({ op: "replace", path: path, value: deepClone(newVal) });
-                break listenerLoop;
+                return true;
             }
             //let oldKeys = objectKeys(oldVal);
             for (let i = newKeys.length - 1; i >= 0; i--) {
                 if (oldVal[newKeys[i]] !== newVal[newKeys[i]]) { // shallow value didn't match
                     patches.push({ op: "replace", path: path, value: deepClone(newVal) });
-                    break listenerLoop;
+                    return true;
                 }
             }
-
-            break listenerLoop;
         }
+        return false;
     }
 }
 

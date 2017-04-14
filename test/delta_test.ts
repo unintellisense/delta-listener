@@ -183,13 +183,7 @@ describe("DeltaContainer", () => {
         container.listen("entities/:name", "replace", (player: string, value: number) => {
             assertCount++;
         });
-
-        container.listen("entities/:name/:attribute", "replace", (id: string, attribute: string, value: any) => {
-            assertCount++;
-        });
-
-
-
+        
         dataCopy.entities.one.x = 33;
         dataCopy.entities.one.y = 99;
 
@@ -200,7 +194,7 @@ describe("DeltaContainer", () => {
 
         let secondCopy = clone(dataCopy);
 
-        assert.equal(assertCount, 6);
+        assert.equal(assertCount, 2);
 
         container.listen("entities/:name", "add", (id: string, value: any) => {
             assertCount++;
@@ -218,7 +212,7 @@ describe("DeltaContainer", () => {
 
         container.set(secondCopy);
 
-        assert.equal(assertCount, 8);
+        assert.equal(assertCount, 4);
 
         done();
     })
