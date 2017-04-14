@@ -198,6 +198,9 @@ export class DeltaContainer<T> {
 
         for (let i = this.listeners.replace.length - 1; i >= 0; i--) {
             rules = this.listeners.replace[i].rules;
+            if (rules.length !== path.length) { // lengths must match
+                continue listenerLoop;
+            }
             for (let i = 0; i < rules.length; i++) {
                 if (!path[i] // if path isn't this long, or
                     || !path[i].match(rules[i])) { // path doesnt match
