@@ -25,11 +25,11 @@ export class DeltaContainer<T> {
         this.reset();
     }
 
-    public set(newData: T): PatchObject[] {
+    public set(newData: T): void {
         let patches = this.compare(newData);
         this.checkPatches(patches);
         this.data = newData;
-        return patches;
+        return;
     }
 
     public registerPlaceholder(placeholder: string, matcher: RegExp) {
@@ -79,7 +79,7 @@ export class DeltaContainer<T> {
         this.reset();
     }
 
-    private checkPatches(patches: PatchObject[]) {
+    protected checkPatches(patches: PatchObject[]) {
 
         for (let i = patches.length - 1; i >= 0; i--) {
             let matched = false;

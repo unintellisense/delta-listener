@@ -1,4 +1,4 @@
-import { DeltaContainer, PatchObject } from './DeltaContainer';
+import { DeltaContainer } from './DeltaContainer';
 export declare class ExplicitContainer<T> extends DeltaContainer<T> {
-    set(newData: T): PatchObject[];
+    set(newData: T): void;
 }
