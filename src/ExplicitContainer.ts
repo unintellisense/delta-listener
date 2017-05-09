@@ -27,6 +27,10 @@ export class ExplicitContainer<T extends StateObject<M>, M> {
 
   private stateListeners: ExplicitStateListener<T, M> = {};
 
+  private createListeners: {
+    
+  } = {};
+
   constructor(data: T) {
     this.data = data;
     this.propKeys = Object.keys(data);
