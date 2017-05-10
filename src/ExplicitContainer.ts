@@ -12,12 +12,6 @@ export type ExplicitStateListener<T extends StateObject<M>, M> = {
   }) => void
 }
 
-export type CreateListener<T> = (newEntity: T) => void
-
-
-
-
-
 export class ExplicitContainer<T extends StateObject<M>, M> {
 
   private data: T;
@@ -28,7 +22,11 @@ export class ExplicitContainer<T extends StateObject<M>, M> {
   private stateListeners: ExplicitStateListener<T, M> = {};
 
   private createListeners: {
-    
+    [P in keyof T]?: (entity: M) => void
+  } = {};
+
+  private removeListeners: {
+    [P in keyof T]?: (entity: M) => void
   } = {};
 
   constructor(data: T) {
@@ -41,8 +39,12 @@ export class ExplicitContainer<T extends StateObject<M>, M> {
     this.stateListeners[propName] = callback;
   }
 
-  public addCreatelistener(propName: keyof T, callback: (data: M) => void) { 
-    
+  public addCreateListener(propName: keyof T, callback: (data: M) => void) {
+    this.createListeners[propName] = callback;
+  }
+
+  public addRemoveListener(propName: keyof T, callback: (data: M) => void) {
+    this.removeListeners[propName] = callback;
   }
 
   public set(newData: T): void {
@@ -54,10 +56,16 @@ export class ExplicitContainer<T extends StateObject<M>, M> {
 
       for (let j = latestObjKeys.length - 1; j >= 0; j--) { // check the lastObjKeys to see if this is new
         for (let k = priorObjKeys.length - 1; k >= 0; k--) {
-          if (latestObjKeys[i] === priorObjKeys[k]) continue; // we know this object
+          if (latestObjKeys[j] === priorObjKeys[k]) continue; // we know this object
+
         }
         foundNew = true;
-        /* TODO if we got here, invoke add listener on latestObjKeys[i] */
+        if (this.createListeners[this.propKeys[i]]) { // check for add listener and invoke it
+          this.createListeners[this.propKeys[i]]
+            (newData[this.propKeys[i]][latestObjKeys[j]])
+        }
+
+
       }
 
       if (!foundNew && latestObjKeys.length === priorObjKeys.length)
@@ -66,74 +74,17 @@ export class ExplicitContainer<T extends StateObject<M>, M> {
         for (let k = latestObjKeys.length - 1; k >= 0; k--) {
           if (priorObjKeys[j] === latestObjKeys[k]) continue; // we know this object
         }
-        /* TODO if we got here, invoke remove listener on priorObjKeys[j] */
+
+        if (this.removeListeners[this.propKeys[i]]) { // check for remove listener and invoke it
+          this.removeListeners[this.propKeys[i]]
+            (newData[this.propKeys[i]][priorObjKeys[i]])
+        }
       }
       if (this.stateListeners[this.propKeys[i]]) {
         this.stateListeners[this.propKeys[i]](newData[this.propKeys[i]])
       }
-
-    }
-
-
-    this.generate(newData, patches, []);
-
-
-    this.checkPatches(patches);
-    this.data = newData;
-    return;
-  }
-
-  // Dirty check if obj is different from mirror, generate patches and update mirror
-  generate(newData: T, patches: PatchObject[], path: string[]) {
-
-    var newKeys = objectKeys(newData);
-    var oldKeys = objectKeys(oldData);
-    var changed = false;
-    var deleted = false;
-
-    for (var t = oldKeys.length - 1; t >= 0; t--) {
-      var prop = oldKeys[t];
-      var oldVal = oldData[prop];
-      if (newData.hasOwnProperty(prop)  // property still on new data, and...
-        && !(newData[prop] === undefined // new data doesnt have the property defined
-          && oldVal !== undefined // or old value for this property was defined
-          && Array.isArray(newData) === false) // or current NewData isn't a array
-      ) {
-        var newVal = newData[prop];
-        if (typeof oldVal == "object" && // old value was a object, and
-          oldVal != null && // old value wasnt null, and 
-          typeof newVal == "object" && // new value is object, and
-          newVal != null) { // new value isnt null
-          // check replace listeners for object level listener
-          let newPath = path.concat(prop);
-          var match = this.checkObjectReplaceListeners(oldVal, newVal, newPath, patches);
-          if (!match) this.generate(oldVal, newVal, patches, newPath);
-        }
-        else {
-          if (oldVal !== newVal) {
-            changed = true;
-            patches.push({ op: "replace", path: path.concat(prop), value: deepClone(newVal) });
-          }
-        }
-      }
-      else {
-        patches.push({ op: "remove", path: path.concat(prop) });
-        deleted = true; // property has been deleted
-      }
-    }
-
-    if (!deleted && newKeys.length == oldKeys.length) {
-      return;
-    }
-
-    for (var t = 0; t < newKeys.length; t++) {
-      var prop = newKeys[t];
-      if (!oldData.hasOwnProperty(prop) && newData[prop] !== undefined) {
-        patches.push({ op: "add", path: path.concat(prop), value: deepClone(newData[prop]) });
-      }
     }
   }
-
 
 
 }

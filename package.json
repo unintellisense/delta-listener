@@ -5,7 +5,7 @@
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "scripts": {
-    "test": "mocha lib/test/*_test.js",
+    "test": "mocha --compilers ts:ts-node/register test/*_test.ts",
     "prepublish": "rimraf lib && tsc",
     "pretest": "tsc -p tsconfig-test.json",
     "zuul": "npm run pretest && zuul --ui mocha-bdd --no-coverage --concurrency 1 -- lib/test/*.js",

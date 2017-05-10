@@ -10,20 +10,12 @@
       "name": "Mocha Tests",
       "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
       "args": [
-        "-u",
-        "tdd",
-        "--timeout",
-        "999999",
-        "--colors",
-        "--compilers",
-        "ts:ts-node/register",
-        "${workspaceRoot}/test/explicit_container_test.ts"
+        "-r",
+        "ts-node/register",
+        "${relativeFile}"
       ],
-      "sourceMaps": true,
-      "outFiles": [
-        "${workspaceRoot}/lib/**/*"
-      ],
-      "internalConsoleOptions": "openOnSessionStart"
+      "cwd": "${workspaceRoot}",
+      "protocol": "inspector"
     }
   ]
 }

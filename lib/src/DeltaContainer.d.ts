@@ -9,12 +9,12 @@ export declare class DeltaContainer<T> {
     private listeners;
     private matcherPlaceholders;
     constructor(data: T);
-    set(newData: T): PatchObject[];
+    set(newData: T): void;
     registerPlaceholder(placeholder: string, matcher: RegExp): void;
     listen(segments: string | Function, operation?: PatchOperation, callback?: Function): Listener;
     removeListener(listener: Listener): void;
     removeAllListeners(): void;
-    private checkPatches(patches);
+    protected checkPatches(patches: PatchObject[]): void;
     private checkPatch(patch, listener);
     private reset();
     compare(newData: any): any[];

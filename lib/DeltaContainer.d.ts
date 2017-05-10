@@ -14,7 +14,7 @@ export declare class DeltaContainer<T> {
     listen(segments: string | Function, operation?: PatchOperation, callback?: Function): Listener;
     removeListener(listener: Listener): void;
     removeAllListeners(): void;
-    private checkPatches(patches);
+    protected checkPatches(patches: PatchObject[]): void;
     private checkPatch(patch, listener);
     private reset();
     compare(newData: any): any[];
