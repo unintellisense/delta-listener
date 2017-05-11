@@ -21,11 +21,11 @@ describe("ExplicitDeltaContainer", () => {
 
   let stateObj: TestState;
 
-  before(() => {
+  beforeEach(() => {
     stateObj = { propA: {}, propB: {} }
   })
 
-  it('basic test', () => {
+  it('add test', () => {
     let ctr = 0;
     let container = new ExplicitContainer<TestState, TestModel>(stateObj);
 
@@ -41,21 +41,51 @@ describe("ExplicitDeltaContainer", () => {
 
     container.set({
       propA: {
-        123: {
-          name: 'a',
-          x: 1, y: 2, z: 3
-        }
-
+        objOne: {
+          name: 'a', x: 1, y: 2, z: 3
+        },
+        objTwo: {
+          name: 'a', x: 1, y: 2, z: 3
+        },
       },
       propB: {
-        456: {
-          name: 'b',
-          x: 1, y: 2, z: 3
+        objOne: {
+          name: 'b', x: 1, y: 2, z: 3
         }
       }
     });
 
-    assert.equal(ctr, 2);
+    assert.equal(ctr, 3);
+
+  })
+
+  it('remove test', () => {
+    let ctr = 0;
+    stateObj.propA.objOne = { name: 'a', x: 1, y: 2, z: 3 };
+    stateObj.propA.objTwo = { name: 'a', x: 1, y: 2, z: 3 };
+
+    stateObj.propB.objOne = { name: 'b', x: 1, y: 2, z: 3 };
+    stateObj.propB.objTwo = { name: 'b', x: 1, y: 2, z: 3 };
+
+    let container = new ExplicitContainer<TestState, TestModel>(stateObj);
+
+    container.addRemoveListener('propA', (data) => {
+      assert.equal(data.name, 'a');
+      ctr++;
+    });
+
+    container.addRemoveListener('propB', (data) => {
+      assert.equal(data.name, 'b');
+      ctr++;
+    });
+
+    container.set({
+      propA: {},
+      propB: {}
+    });
+
+    assert.equal(ctr, 4);
+
 
   })
 
