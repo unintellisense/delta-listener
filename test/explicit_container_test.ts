@@ -86,6 +86,79 @@ describe("ExplicitDeltaContainer", () => {
 
     assert.equal(ctr, 4);
 
+  })
+
+  it('simple state listener', () => {
+    let ctr = 0;
+    stateObj.propA.objOne = { name: 'a', x: 1, y: 2, z: 3 };
+    stateObj.propA.objTwo = { name: 'a', x: 1, y: 2, z: 3 };
+
+    stateObj.propB.objOne = { name: 'b', x: 1, y: 2, z: 3 };
+    stateObj.propB.objTwo = { name: 'b', x: 1, y: 2, z: 3 };
+    let stateObjCopy: typeof stateObj = JSON.parse(JSON.stringify(stateObj));
+
+    stateObjCopy.propA.objOne.x = 11;
+    stateObjCopy.propA.objOne.y = 22;
+    stateObjCopy.propA.objOne.z = 33;
+
+    stateObjCopy.propB.objOne.x = 11;
+    stateObjCopy.propB.objOne.y = 22;
+    stateObjCopy.propB.objOne.z = 33;
+
+
+    let container = new ExplicitContainer<TestState, TestModel>(stateObj);
+    container.addStateListener('propA', (data) => {
+      assert.equal(data.objOne.x, 11);
+      assert.equal(data.objOne.y, 22);
+      assert.equal(data.objOne.z, 33);
+
+      assert.equal(data.objTwo.x, 1);
+      assert.equal(data.objTwo.y, 2);
+      assert.equal(data.objTwo.z, 3);
+    })
+
+    container.addStateListener('propB', (data) => {
+      assert.equal(data.objOne.x, 11);
+      assert.equal(data.objOne.y, 22);
+      assert.equal(data.objOne.z, 33);
+
+      assert.equal(data.objTwo.x, 1);
+      assert.equal(data.objTwo.y, 2);
+      assert.equal(data.objTwo.z, 3);
+    })
+
+    container.set(stateObjCopy);
+    assert.equal(container._data.propA.objOne.x, 11);
+    assert.equal(container._data.propA.objOne.y, 22);
+    assert.equal(container._data.propA.objOne.z, 33);
+
+    let anotherCopy: typeof stateObj = JSON.parse(JSON.stringify(stateObjCopy));
+
+    anotherCopy.propA.objTwo.x = 111;
+    anotherCopy.propA.objTwo.y = 222;
+    anotherCopy.propA.objTwo.z = 333;
+
+    container.addStateListener('propA', (data) => {
+      assert.equal(data.objOne.x, 11);
+      assert.equal(data.objOne.y, 22);
+      assert.equal(data.objOne.z, 33);
+
+      assert.equal(data.objTwo.x, 111);
+      assert.equal(data.objTwo.y, 222);
+      assert.equal(data.objTwo.z, 333);
+    });
+
+    container.addStateListener('propB', (data) => {
+      assert.equal(data.objOne.x, 11);
+      assert.equal(data.objOne.y, 22);
+      assert.equal(data.objOne.z, 33);
+
+      assert.equal(data.objTwo.x, 1);
+      assert.equal(data.objTwo.y, 2);
+      assert.equal(data.objTwo.z, 3);
+    });
+
+    container.set(anotherCopy);
 
   })
 

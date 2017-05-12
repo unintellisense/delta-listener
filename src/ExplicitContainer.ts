@@ -13,8 +13,8 @@ export type ExplicitStateListener<T extends StateObject<M>, M> = {
 }
 
 export class ExplicitContainer<T extends StateObject<M>, M> {
-
-  private data: T;
+  get data() { return this._data }
+  public _data: T;
 
   private propKeys: string[]
   private propLength: number
@@ -30,7 +30,7 @@ export class ExplicitContainer<T extends StateObject<M>, M> {
   } = {};
 
   constructor(data: T) {
-    this.data = data;
+    this._data = data;
     this.propKeys = Object.keys(data);
     this.propLength = this.propKeys.length;
   }
@@ -51,7 +51,7 @@ export class ExplicitContainer<T extends StateObject<M>, M> {
 
     for (let i = this.propLength - 1; i >= 0; i--) {
       let latestObjKeys = Object.keys(newData[this.propKeys[i]]);
-      let priorObjKeys = Object.keys(this.data[this.propKeys[i]]);
+      let priorObjKeys = Object.keys(this._data[this.propKeys[i]]);
       let foundNew = false;
 
       for (let j = latestObjKeys.length - 1; j >= 0; j--) { // check the lastObjKeys to see if this is new
@@ -77,13 +77,14 @@ export class ExplicitContainer<T extends StateObject<M>, M> {
 
         if (this.removeListeners[this.propKeys[i]]) { // check for remove listener and invoke it
           this.removeListeners[this.propKeys[i]]
-            (this.data[this.propKeys[i]][priorObjKeys[i]])
+            (this._data[this.propKeys[i]][priorObjKeys[i]])
         }
       }
       if (this.stateListeners[this.propKeys[i]]) {
         this.stateListeners[this.propKeys[i]](newData[this.propKeys[i]])
       }
     }
+    this._data = newData;
   }
 
 
