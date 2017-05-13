@@ -1,18 +1,18 @@
 import { DeltaContainer } from './DeltaContainer';
 
-export type StateObject<M> = {
+export type ExplicitStateObject<M> = {
   [propName: string]: {
     [id: string]: M
   }
 }
 
-export type ExplicitStateListener<T extends StateObject<M>, M> = {
+export type ExplicitStateListener<T extends ExplicitStateObject<M>, M> = {
   [P in keyof T]?: (data: {
     [ids: string]: M
   }) => void
 }
 
-export class ExplicitContainer<T extends StateObject<M>, M> {
+export class ExplicitContainer<T extends ExplicitStateObject<M>, M> {
   get data() { return this._data }
   public _data: T;
 

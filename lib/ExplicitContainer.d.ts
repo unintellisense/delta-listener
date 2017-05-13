@@ -1,15 +1,16 @@
-export declare type StateObject<M> = {
+export declare type ExplicitStateObject<M> = {
     [propName: string]: {
         [id: string]: M;
     };
 };
-export declare type ExplicitStateListener<T extends StateObject<M>, M> = {
+export declare type ExplicitStateListener<T extends ExplicitStateObject<M>, M> = {
     [P in keyof T]?: (data: {
         [ids: string]: M;
     }) => void;
 };
-export declare class ExplicitContainer<T extends StateObject<M>, M> {
-    private data;
+export declare class ExplicitContainer<T extends ExplicitStateObject<M>, M> {
+    readonly data: T;
+    _data: T;
     private propKeys;
     private propLength;
     private stateListeners;
