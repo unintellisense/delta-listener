@@ -128,9 +128,9 @@ describe("ExplicitDeltaContainer", () => {
     })
 
     container.set(stateObjCopy);
-    assert.equal(container._data.propA.objOne.x, 11);
-    assert.equal(container._data.propA.objOne.y, 22);
-    assert.equal(container._data.propA.objOne.z, 33);
+    assert.equal(container.data.propA.objOne.x, 11);
+    assert.equal(container.data.propA.objOne.y, 22);
+    assert.equal(container.data.propA.objOne.z, 33);
 
     let anotherCopy: typeof stateObj = JSON.parse(JSON.stringify(stateObjCopy));
 

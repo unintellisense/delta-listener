@@ -14,7 +14,7 @@ export type ExplicitStateListener<T extends StateObject<M>, M> = {
 
 export class ExplicitContainer<T extends StateObject<M>, M> {
   get data() { return this._data }
-  public _data: T;
+  private _data: T;
 
   private propKeys: string[]
   private propLength: number
