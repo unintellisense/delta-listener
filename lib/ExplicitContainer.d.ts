@@ -1,15 +1,16 @@
-export declare type StateObject<M> = {
+export declare type StateObject = {
     [propName: string]: {
-        [id: string]: M;
+        [id: string]: any;
     };
 };
-export declare type ExplicitStateListener<T extends StateObject<M>, M> = {
+export declare type ExplicitStateListener<T extends StateObject> = {
     [P in keyof T]?: (data: {
-        [ids: string]: M;
+        [ids: string]: any;
     }) => void;
 };
-export declare class ExplicitContainer<T extends StateObject<M>, M> {
-    private data;
+export declare class ExplicitContainer<T extends StateObject> {
+    readonly data: T;
+    private _data;
     private propKeys;
     private propLength;
     private stateListeners;
@@ -17,7 +18,7 @@ export declare class ExplicitContainer<T extends StateObject<M>, M> {
     private removeListeners;
     constructor(data: T);
     addStateListener(propName: keyof T, callback: (data: T[keyof T]) => void): void;
-    addCreateListener(propName: keyof T, callback: (data: M) => void): void;
-    addRemoveListener(propName: keyof T, callback: (data: M) => void): void;
+    addCreateListener(propName: keyof T, callback: (data: any) => void): void;
+    addRemoveListener(propName: keyof T, callback: (data: any) => void): void;
     set(newData: T): void;
 }

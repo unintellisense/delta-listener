@@ -27,7 +27,7 @@ describe("ExplicitDeltaContainer", () => {
 
   it('add test', () => {
     let ctr = 0;
-    let container = new ExplicitContainer<TestState, TestModel>(stateObj);
+    let container = new ExplicitContainer<TestState>(stateObj);
 
     container.addCreateListener('propA', (data) => {
       assert.equal(data.name, 'a');
@@ -67,7 +67,7 @@ describe("ExplicitDeltaContainer", () => {
     stateObj.propB.objOne = { name: 'b', x: 1, y: 2, z: 3 };
     stateObj.propB.objTwo = { name: 'b', x: 1, y: 2, z: 3 };
 
-    let container = new ExplicitContainer<TestState, TestModel>(stateObj);
+    let container = new ExplicitContainer<TestState>(stateObj);
 
     container.addRemoveListener('propA', (data) => {
       assert.equal(data.name, 'a');
@@ -106,7 +106,7 @@ describe("ExplicitDeltaContainer", () => {
     stateObjCopy.propB.objOne.z = 33;
 
 
-    let container = new ExplicitContainer<TestState, TestModel>(stateObj);
+    let container = new ExplicitContainer<TestState>(stateObj);
     container.addStateListener('propA', (data) => {
       assert.equal(data.objOne.x, 11);
       assert.equal(data.objOne.y, 22);

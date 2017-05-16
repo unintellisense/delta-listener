@@ -1,32 +1,32 @@
 import { DeltaContainer } from './DeltaContainer';
 
-export type StateObject<M> = {
+export type StateObject = {
   [propName: string]: {
-    [id: string]: M
+    [id: string]: any
   }
 }
 
-export type ExplicitStateListener<T extends StateObject<M>, M> = {
+export type ExplicitStateListener<T extends StateObject> = {
   [P in keyof T]?: (data: {
-    [ids: string]: M
+    [ids: string]: any
   }) => void
 }
 
-export class ExplicitContainer<T extends StateObject<M>, M> {
+export class ExplicitContainer<T extends StateObject> {
   get data() { return this._data }
   private _data: T;
 
   private propKeys: string[]
   private propLength: number
 
-  private stateListeners: ExplicitStateListener<T, M> = {};
+  private stateListeners: ExplicitStateListener<T> = {};
 
   private createListeners: {
-    [P in keyof T]?: (entity: M) => void
+    [P in keyof T]?: (entity: any) => void
   } = {};
 
   private removeListeners: {
-    [P in keyof T]?: (entity: M) => void
+    [P in keyof T]?: (entity: any) => void
   } = {};
 
   constructor(data: T) {
@@ -39,11 +39,11 @@ export class ExplicitContainer<T extends StateObject<M>, M> {
     this.stateListeners[propName] = callback;
   }
 
-  public addCreateListener(propName: keyof T, callback: (data: M) => void) {
+  public addCreateListener(propName: keyof T, callback: (data: any) => void) {
     this.createListeners[propName] = callback;
   }
 
-  public addRemoveListener(propName: keyof T, callback: (data: M) => void) {
+  public addRemoveListener(propName: keyof T, callback: (data: any) => void) {
     this.removeListeners[propName] = callback;
   }
 
