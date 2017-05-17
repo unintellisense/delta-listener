@@ -20,5 +20,6 @@ export declare class ExplicitContainer<T extends StateObject> {
     addStateListener(propName: keyof T, callback: (data: T[keyof T]) => void): void;
     addCreateListener(propName: keyof T, callback: (data: any) => void): void;
     addRemoveListener(propName: keyof T, callback: (data: any) => void): void;
+    removeAllListeners(): void;
     set(newData: T): void;
 }

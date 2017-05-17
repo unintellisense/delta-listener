@@ -47,6 +47,12 @@ export class ExplicitContainer<T extends StateObject> {
     this.removeListeners[propName] = callback;
   }
 
+  public removeAllListeners() {
+    this.stateListeners = {};
+    this.createListeners = {};
+    this.removeListeners = {};
+  }
+
   public set(newData: T): void {
 
     for (let i = this.propLength - 1; i >= 0; i--) {
