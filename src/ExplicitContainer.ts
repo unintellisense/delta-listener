@@ -22,11 +22,11 @@ export class ExplicitContainer<T extends StateObject> {
   private stateListeners: ExplicitStateListener<T> = {};
 
   private createListeners: {
-    [P in keyof T]?: (entity: any) => void
+    [P in keyof T]?: (id: string, entity: any) => void
   } = {};
 
   private removeListeners: {
-    [P in keyof T]?: (entity: any) => void
+    [P in keyof T]?: (id: string, entity: any) => void
   } = {};
 
   constructor(data: T) {
@@ -39,11 +39,11 @@ export class ExplicitContainer<T extends StateObject> {
     this.stateListeners[propName] = callback;
   }
 
-  public addCreateListener(propName: keyof T, callback: (data: any) => void) {
+  public addCreateListener(propName: keyof T, callback: (id: string, data: any) => void) {
     this.createListeners[propName] = callback;
   }
 
-  public addRemoveListener(propName: keyof T, callback: (data: any) => void) {
+  public addRemoveListener(propName: keyof T, callback: (id: string, data: any) => void) {
     this.removeListeners[propName] = callback;
   }
 
@@ -68,7 +68,7 @@ export class ExplicitContainer<T extends StateObject> {
         foundNew = true;
         if (this.createListeners[this.propKeys[i]]) { // check for add listener and invoke it
           this.createListeners[this.propKeys[i]]
-            (newData[this.propKeys[i]][latestObjKeys[j]])
+            (latestObjKeys[j], newData[this.propKeys[i]][latestObjKeys[j]])
         }
 
 
@@ -83,7 +83,7 @@ export class ExplicitContainer<T extends StateObject> {
 
         if (this.removeListeners[this.propKeys[i]]) { // check for remove listener and invoke it
           this.removeListeners[this.propKeys[i]]
-            (this._data[this.propKeys[i]][priorObjKeys[i]])
+            (priorObjKeys[i], this._data[this.propKeys[i]][priorObjKeys[i]])
         }
       }
       if (this.stateListeners[this.propKeys[i]]) {
