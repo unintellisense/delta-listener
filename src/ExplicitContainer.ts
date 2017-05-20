@@ -60,6 +60,10 @@ export class ExplicitContainer<T extends StateObject> {
       let priorObjKeys = Object.keys(this._data[this.propKeys[i]]);
       let foundNew = false;
 
+      if (this.stateListeners[this.propKeys[i]]) {
+        this.stateListeners[this.propKeys[i]](newData[this.propKeys[i]])
+      }
+
       newLoop:
       for (let j = latestObjKeys.length - 1; j >= 0; j--) { // check the lastObjKeys to see if this is new
         for (let k = priorObjKeys.length - 1; k >= 0; k--) {
@@ -71,8 +75,6 @@ export class ExplicitContainer<T extends StateObject> {
           this.createListeners[this.propKeys[i]]
             (latestObjKeys[j], newData[this.propKeys[i]][latestObjKeys[j]])
         }
-
-
       }
 
       if (!foundNew && latestObjKeys.length === priorObjKeys.length)
@@ -87,9 +89,6 @@ export class ExplicitContainer<T extends StateObject> {
           this.removeListeners[this.propKeys[i]]
             (priorObjKeys[i], this._data[this.propKeys[i]][priorObjKeys[i]])
         }
-      }
-      if (this.stateListeners[this.propKeys[i]]) {
-        this.stateListeners[this.propKeys[i]](newData[this.propKeys[i]])
       }
     }
     this._data = newData;
