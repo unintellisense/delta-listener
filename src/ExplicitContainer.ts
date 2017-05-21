@@ -87,7 +87,7 @@ export class ExplicitContainer<T extends StateObject> {
 
         if (this.removeListeners[this.propKeys[i]]) { // check for remove listener and invoke it
           this.removeListeners[this.propKeys[i]]
-            (priorObjKeys[i], this._data[this.propKeys[i]][priorObjKeys[i]])
+            (priorObjKeys[j], this._data[this.propKeys[i]][priorObjKeys[i]])
         }
       }
     }
