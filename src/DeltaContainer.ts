@@ -173,7 +173,7 @@ export class DeltaContainer<T> {
                     newVal != null) { // new value isnt null
                     // check replace listeners for object level listener
                     let newPath = path.concat(prop);
-                    var match = this.checkObjectReplaceListeners(oldVal, newVal, newPath, patches);
+                    var match = this.checkObserveListeners(oldVal, newVal, newPath, patches);
                     if (!match) {
                         this.generate(oldVal, newVal, patches, newPath);
                     }
@@ -203,13 +203,13 @@ export class DeltaContainer<T> {
         }
     }
 
-    checkObjectReplaceListeners(oldVal: any, newVal: any, path: string[], patches: PatchObject[]) {
+    checkObserveListeners(oldVal: any, newVal: any, path: string[], patches: PatchObject[]) {
         let rules;
 
         listenerLoop:
 
         for (let i = this.listeners.length - 1; i >= 0; i--) {
-            if (this.listeners[i].operation !== 'replace') continue;
+            if (this.listeners[i].operation !== '*') continue;
             rules = this.listeners[i].rules;
             if (rules.length !== path.length) { // lengths must match
                 continue listenerLoop;
@@ -224,13 +224,13 @@ export class DeltaContainer<T> {
             let newKeys = objectKeys(newVal);
             // first just check if the number of properties changed
             if (objectKeys(oldVal).length !== newKeys.length) {
-                patches.push({ operation: "replace", path: path, value: deepClone(newVal) });
+                patches.push({ operation: "*", path: path, value: deepClone(newVal) });
                 return true;
             }
             //let oldKeys = objectKeys(oldVal);
             for (let i = newKeys.length - 1; i >= 0; i--) {
                 if (oldVal[newKeys[i]] !== newVal[newKeys[i]]) { // shallow value didn't match
-                    patches.push({ operation: "replace", path: path, value: deepClone(newVal) });
+                    patches.push({ operation: "*", path: path, value: deepClone(newVal) });
                     return true;
                 }
             }

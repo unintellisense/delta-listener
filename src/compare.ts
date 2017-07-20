@@ -1,4 +1,4 @@
-export type Operation = "add" | "remove" | "replace";
+export type Operation = "add" | "remove" | "replace" | "*";
 
 export interface PatchObject {
     path: string[];

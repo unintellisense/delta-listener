@@ -211,10 +211,8 @@ describe("DeltaContainer", () => {
         let assertCount = 0;
 
         container.listen("entities/:name", (change: DataChange) => {
-            if (change.operation === 'replace') {
-                assertCount++;
-            }
-        });
+            assertCount++;
+        }, '*');
 
         dataCopy.entities.one.x = 33;
         dataCopy.entities.one.y = 99;
@@ -229,10 +227,10 @@ describe("DeltaContainer", () => {
         assert.equal(assertCount, 2);
 
         container.listen("entities/:name", (change: DataChange) => {
-            if (change.operation === 'replace') {
+            if (change.operation === 'add') {
                 assertCount++;
             }
-        });
+        }, 'add');
 
         secondCopy.entities.three = {
             x: 22,
@@ -274,10 +272,8 @@ describe("DeltaContainer", () => {
         let assertCount = 0;
         let cloned = clone(data);
         container.listen("entities/:name", (change: DataChange) => {
-            if (change.operation === 'replace') {
-                assert.fail(); // shouldn't be invoked
-            }
-        });
+            assertCount++;
+        }, '*');
         // first set it with doing nothing, shouldn't trigger
         container.set(cloned);
         assert.equal(assertCount, 0);
@@ -294,10 +290,8 @@ describe("DeltaContainer", () => {
         let assertCount = 0;
         let cloned = clone(data);
         container.listen("entities/:name", (change: DataChange) => {
-            if (change.operation === 'replace') {
-                assertCount++;
-            }
-        });
+            assertCount++;
+        }, '*');
         // first set it with doing nothing, shouldn't trigger
         container.set(cloned);
         assert.equal(assertCount, 0);
