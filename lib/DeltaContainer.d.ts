@@ -1,21 +1,24 @@
-export declare type PatchOperation = PatchObject["op"];
 export interface Listener {
     callback: Function;
-    operation: PatchOperation;
     rules: RegExp[];
+    rawRules: string[];
+}
+export interface DataChange extends PatchObject {
+    path: any;
 }
 export declare class DeltaContainer<T> {
     data: T;
     private listeners;
+    private defaultListener;
     private matcherPlaceholders;
     constructor(data: T);
     set(newData: T): void;
     registerPlaceholder(placeholder: string, matcher: RegExp): void;
-    listen(segments: string | Function, operation?: PatchOperation, callback?: Function): Listener;
+    listen(segments: string | Function, callback?: Function): Listener;
     removeListener(listener: Listener): void;
     removeAllListeners(): void;
-    protected checkPatches(patches: PatchObject[]): void;
-    private checkPatch(patch, listener);
+    private checkPatches(patches);
+    private getPathVariables(patch, listener);
     private reset();
     compare(newData: any): any[];
     generate(oldData: any, newData: any, patches: PatchObject[], path: string[]): void;

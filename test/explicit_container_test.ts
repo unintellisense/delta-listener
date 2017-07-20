@@ -1,5 +1,5 @@
 import { assert, expect } from "chai";
-import { ExplicitContainer, PatchOperation } from "../src";
+import { ExplicitContainer, DataChange } from "../src";
 
 type TestModel = {
   x: number

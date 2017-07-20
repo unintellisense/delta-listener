@@ -1,2 +1,2 @@
-export { DeltaContainer, PatchOperation, Listener } from "./DeltaContainer";
+export { DeltaContainer, DataChange, Listener } from "./DeltaContainer";
 export { ExplicitContainer, ExplicitStateObject } from './ExplicitContainer';

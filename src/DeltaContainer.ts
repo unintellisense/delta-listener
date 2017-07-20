@@ -1,23 +1,27 @@
-
-
-export type PatchOperation = PatchObject["op"];
+import { compare, PatchObject, Operation } from "./compare";
 
 export interface Listener {
+    operation?: Operation
     callback: Function,
-    operation: PatchOperation,
     rules: RegExp[]
+    rawRules: string[]
+}
+
+export interface DataChange extends PatchObject {
+    path: any;
 }
 
 export class DeltaContainer<T> {
     public data: T;
-    private listeners: { [op: string]: Listener[] };
+    private listeners: Listener[] = [];
+    private defaultListener: Listener;
 
     private matcherPlaceholders: { [id: string]: RegExp } = {
         ":id": /^([a-zA-Z0-9\-_]+)$/,
         ":number": /^([0-9]+)$/,
         ":string": /^(\w+)$/,
         ":axis": /^([xyz])$/,
-        "*": /(.*)/,
+        ":*": /(.*)/,
     }
 
     constructor(data: T) {
@@ -35,8 +39,11 @@ export class DeltaContainer<T> {
     public registerPlaceholder(placeholder: string, matcher: RegExp) {
         this.matcherPlaceholders[placeholder] = matcher;
     }
+    public listen(segments: Function): Listener
+    public listen(segments: string, callback: Function): Listener
+    public listen(segments: string, callback: Function, operation: Operation): Listener
 
-    public listen(segments: string | Function, operation?: PatchOperation, callback?: Function): Listener {
+    public listen(segments: string | Function, callback?: Function, operation?: Operation): Listener {
         let rules: string[];
 
         if (typeof (segments) === "function") {
@@ -50,27 +57,33 @@ export class DeltaContainer<T> {
         let listener: Listener = {
             callback: callback,
             operation: operation,
+            rawRules: rules,
             rules: rules.map(segment => {
                 if (typeof (segment) === "string") {
                     // replace placeholder matchers
                     return (segment.indexOf(":") === 0)
-                        ? this.matcherPlaceholders[segment] || this.matcherPlaceholders["*"]
-                        : new RegExp(segment);
+                        ? this.matcherPlaceholders[segment] || this.matcherPlaceholders[":*"]
+                        : new RegExp(`^${segment}$`);
                 } else {
                     return segment;
                 }
             })
         };
 
-        this.listeners[operation || ""].push(listener);
+        if (rules.length === 0) {
+            this.defaultListener = listener;
+
+        } else {
+            this.listeners.push(listener);
+        }
 
         return listener;
     }
 
     public removeListener(listener: Listener) {
-        for (var i = this.listeners[listener.operation].length - 1; i >= 0; i--) {
-            if (this.listeners[listener.operation][i] === listener) {
-                this.listeners[listener.operation].splice(i, 1);
+        for (var i = this.listeners.length - 1; i >= 0; i--) {
+            if (this.listeners[i] === listener) {
+                this.listeners.splice(i, 1);
             }
         }
     }
@@ -79,38 +92,40 @@ export class DeltaContainer<T> {
         this.reset();
     }
 
-    protected checkPatches(patches: PatchObject[]) {
-
+    private checkPatches(patches: PatchObject[]) {
         for (let i = patches.length - 1; i >= 0; i--) {
             let matched = false;
-            let op = patches[i].op;
-            for (let j = 0, len = this.listeners[op].length; j < len; j++) {
-                let listener = this.listeners[op][j];
-                let matches = this.checkPatch(patches[i], listener);
-                if (matches) {
-                    listener.callback(...matches, patches[i].value);
-                    matched = true;
+
+            for (let j = 0, len = this.listeners.length; j < len; j++) {
+                let listener = this.listeners[j];
+                let pathVariables = this.getPathVariables(patches[i], listener);
+                if (pathVariables) {
+                    if (!listener.operation || listener.operation === patches[i].operation) {
+                        listener.callback({
+                            path: pathVariables,
+                            operation: patches[i].operation,
+                            value: patches[i].value
+                        });
+                        matched = true;
+                    }
                 }
             }
 
             // check for fallback listener
-            if (!matched && this.listeners[""]) {
-                for (var j = 0, len = this.listeners[""].length; j < len; j++) {
-                    this.listeners[""][j].callback(patches[i].path, patches[i].op, patches[i].value);
-                }
+            if (!matched && this.defaultListener) {
+                this.defaultListener.callback(patches[i]);
             }
 
         }
-
     }
 
-    private checkPatch(patch: PatchObject, listener: Listener): any {
+    private getPathVariables(patch: PatchObject, listener: Listener): any {
         // skip if rules count differ from patch
         if (patch.path.length !== listener.rules.length) {
             return false;
         }
 
-        let pathVars: any[] = [];
+        let path: any = {};
 
         for (var i = 0, len = listener.rules.length; i < len; i++) {
             let matches = patch.path[i].match(listener.rules[i]);
@@ -118,21 +133,16 @@ export class DeltaContainer<T> {
             if (!matches || matches.length === 0 || matches.length > 2) {
                 return false;
 
-            } else {
-                pathVars = pathVars.concat(matches.slice(1));
+            } else if (listener.rawRules[i].substr(0, 1) === ":") {
+                path[listener.rawRules[i].substr(1)] = matches[1];
             }
         }
 
-        return pathVars;
+        return path;
     }
 
     private reset() {
-        this.listeners = {
-            "": [], // fallback
-            "add": [],
-            "remove": [],
-            "replace": []
-        };
+        this.listeners = [];
     }
 
     compare(newData: any): any[] {
@@ -164,17 +174,19 @@ export class DeltaContainer<T> {
                     // check replace listeners for object level listener
                     let newPath = path.concat(prop);
                     var match = this.checkObjectReplaceListeners(oldVal, newVal, newPath, patches);
-                    if (!match) this.generate(oldVal, newVal, patches, newPath);
+                    if (!match) {
+                        this.generate(oldVal, newVal, patches, newPath);
+                    }
                 }
                 else {
                     if (oldVal !== newVal) {
                         changed = true;
-                        patches.push({ op: "replace", path: path.concat(prop), value: deepClone(newVal) });
+                        patches.push({ operation: "replace", path: path.concat(prop), value: deepClone(newVal) });
                     }
                 }
             }
             else {
-                patches.push({ op: "remove", path: path.concat(prop) });
+                patches.push({ operation: "remove", path: path.concat(prop) });
                 deleted = true; // property has been deleted
             }
         }
@@ -186,7 +198,7 @@ export class DeltaContainer<T> {
         for (var t = 0; t < newKeys.length; t++) {
             var prop = newKeys[t];
             if (!oldData.hasOwnProperty(prop) && newData[prop] !== undefined) {
-                patches.push({ op: "add", path: path.concat(prop), value: deepClone(newData[prop]) });
+                patches.push({ operation: "add", path: path.concat(prop), value: deepClone(newData[prop]) });
             }
         }
     }
@@ -196,8 +208,9 @@ export class DeltaContainer<T> {
 
         listenerLoop:
 
-        for (let i = this.listeners.replace.length - 1; i >= 0; i--) {
-            rules = this.listeners.replace[i].rules;
+        for (let i = this.listeners.length - 1; i >= 0; i--) {
+            if (this.listeners[i].operation !== 'replace') continue;
+            rules = this.listeners[i].rules;
             if (rules.length !== path.length) { // lengths must match
                 continue listenerLoop;
             }
@@ -211,13 +224,13 @@ export class DeltaContainer<T> {
             let newKeys = objectKeys(newVal);
             // first just check if the number of properties changed
             if (objectKeys(oldVal).length !== newKeys.length) {
-                patches.push({ op: "replace", path: path, value: deepClone(newVal) });
+                patches.push({ operation: "replace", path: path, value: deepClone(newVal) });
                 return true;
             }
             //let oldKeys = objectKeys(oldVal);
             for (let i = newKeys.length - 1; i >= 0; i--) {
                 if (oldVal[newKeys[i]] !== newVal[newKeys[i]]) { // shallow value didn't match
-                    patches.push({ op: "replace", path: path, value: deepClone(newVal) });
+                    patches.push({ operation: "replace", path: path, value: deepClone(newVal) });
                     return true;
                 }
             }
@@ -225,14 +238,6 @@ export class DeltaContainer<T> {
         return false;
     }
 }
-
-export interface PatchObject {
-    path: string[];
-    op: "add" | "remove" | "replace";
-    value?: any;
-}
-
-
 
 function deepClone(obj: any) {
     switch (typeof obj) {
