@@ -47,7 +47,7 @@ describe("DeltaContainer", () => {
             assert.equal(change.path.string, "three");
             assert.equal(change.value, 3);
             done();
-        });
+        }, 'add');
 
         data.players.three = 3;
         container.set(data);

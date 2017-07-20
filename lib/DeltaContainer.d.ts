@@ -1,4 +1,6 @@
+import { PatchObject, Operation } from "./compare";
 export interface Listener {
+    operation?: Operation;
     callback: Function;
     rules: RegExp[];
     rawRules: string[];
@@ -14,7 +16,9 @@ export declare class DeltaContainer<T> {
     constructor(data: T);
     set(newData: T): void;
     registerPlaceholder(placeholder: string, matcher: RegExp): void;
-    listen(segments: string | Function, callback?: Function): Listener;
+    listen(segments: Function): Listener;
+    listen(segments: string, callback: Function): Listener;
+    listen(segments: string, callback: Function, operation: Operation): Listener;
     removeListener(listener: Listener): void;
     removeAllListeners(): void;
     private checkPatches(patches);
@@ -22,10 +26,5 @@ export declare class DeltaContainer<T> {
     private reset();
     compare(newData: any): any[];
     generate(oldData: any, newData: any, patches: PatchObject[], path: string[]): void;
-    checkObjectReplaceListeners(oldVal: any, newVal: any, path: string[], patches: PatchObject[]): boolean;
-}
-export interface PatchObject {
-    path: string[];
-    op: "add" | "remove" | "replace";
-    value?: any;
+    checkObserveListeners(oldVal: any, newVal: any, path: string[], patches: PatchObject[]): boolean;
 }
