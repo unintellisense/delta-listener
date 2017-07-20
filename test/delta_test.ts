@@ -43,6 +43,7 @@ describe("DeltaContainer", () => {
         container.listen("players", assert.fail);
         container.listen("players/:string/:string", assert.fail);
         container.listen("players/:string", (change: DataChange) => {
+            assert.equal(change.operation, 'add');
             assert.equal(change.path.string, "three");
             assert.equal(change.value, 3);
             done();
